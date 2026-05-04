@@ -21,7 +21,7 @@ void file_reader(vector <whole_message> &data, ifstream &f){
 
      whole_message event; 
      
-     // First the routing Header, Eric's simulation produces two types of messages!
+     // First the routing Header
      memcpy(&event.header, buffer.data(), ROUTING_SIZE);
      
      // Now the waveform

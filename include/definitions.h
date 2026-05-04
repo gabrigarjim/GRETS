@@ -1,9 +1,9 @@
 #define IN_PORT 9000 // IN_PORT defined in gretasim
 #define HOST_IP "127.0.0.1"
 #define UDP_SIZE 15272
-#define BATCH_SIZE 128
+#define BATCH_SIZE 1024
 
-#define OUT_PORT 9001
+#define OUT_PORT 9000
 
 
 // Trace parameters

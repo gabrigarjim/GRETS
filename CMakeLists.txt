@@ -6,6 +6,7 @@ project(grets CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_BUILD_TYPE Release)
 
 # Include headers
 include_directories(include)
@@ -16,6 +17,9 @@ add_executable(grets grets.cc)
 
 # Compiler warnings (recommended)
 target_compile_options(grets PRIVATE
-    -Wall -Wextra -Wpedantic
+    -Wall -Wextra -Wpedantic -O3 -march=native -mtune=native
 )
+
+target_link_options(grets PRIVATE -flto)
+target_compile_options(grets PRIVATE -flto)
 

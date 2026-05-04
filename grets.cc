@@ -86,15 +86,13 @@ void sender_loop(int core_id, int port, double TARGET, vector<whole_message> &da
       if( (counter + BATCH_SIZE) >= data_buffer.size())
        counter = 0;
 
+      
       for (size_t i = 0; i < BATCH_SIZE; i++) {
-
 
         iovecs[i].iov_base = reinterpret_cast<void*>(&data_buffer[counter + i]);
         iovecs[i].iov_len  = sizeof(whole_message);
  
-
       }    
-   
 
 
       int sent = sendmmsg(sockfd, msgs, BATCH_SIZE, 0);
@@ -144,12 +142,12 @@ int main(int argc, char** argv) {
 
      double TARGET_MPS = atof(argv[1]);  // Not precise, aim for higher than required
 
-     // Three cores seems to be enough for now... I can get up to 1.3 M/s (~ 19.5 GB/s)
-     thread t1(sender_loop, 0, OUT_PORT, TARGET_MPS/3, std::ref(data_buffer));
-     thread t2(sender_loop, 1, OUT_PORT, TARGET_MPS/3, std::ref(data_buffer));
-     thread t3(sender_loop, 2, OUT_PORT, TARGET_MPS/3, std::ref(data_buffer));
-     thread t4(sender_loop, 4, OUT_PORT, TARGET_MPS/3, std::ref(data_buffer));
-     thread t5(sender_loop, 5, OUT_PORT, TARGET_MPS/3, std::ref(data_buffer));
+     // Five cores seems to be enough for now... I can get up to 1.4 M/s (~ 21 GB/s)
+     thread t1(sender_loop, 0, OUT_PORT, TARGET_MPS/5, std::ref(data_buffer));
+     thread t2(sender_loop, 1, OUT_PORT, TARGET_MPS/5, std::ref(data_buffer));
+     thread t3(sender_loop, 2, OUT_PORT, TARGET_MPS/5, std::ref(data_buffer));
+     thread t4(sender_loop, 4, OUT_PORT, TARGET_MPS/5, std::ref(data_buffer));
+     thread t5(sender_loop, 5, OUT_PORT, TARGET_MPS/5, std::ref(data_buffer));
 
      cout<<"Running... "<<endl;
 
