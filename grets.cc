@@ -114,30 +114,36 @@ void sender_loop(int core_id, int port, double TARGET, vector<whole_message> &da
 int main(int argc, char** argv) {
 
 
-    if(argc != 2 || atof(argv[1]) < 0){
+    if(argc != 4){
 
-     cout<<"Usage: ./grets rate"<<endl;
+     cout<<"Usage: ./grets file rate mode "<<endl;
 
+     cout<<"rate: messages/s"<<endl;
+     cout<<"mode: 1 - single message 2 - overlapped traces 3 - overlapped and batched (modifies original structure)"<<endl;
+     
      return 0 ;
 
     }
 
 
-     std::ifstream file("../files/Run0980-10k-fixed2.dat", std::ios::binary);
+     std::ifstream file(argv[1], std::ios::binary);
 
      if (!file) 
       throw std::runtime_error("Failed to open file");
     
      vector<whole_message> data_buffer; 
 
-     file_reader(data_buffer,file); 
+     wvf_custom_message custom_msg{}; 
 
-     cout << "UDP_SIZE = " << UDP_SIZE << "\n";
-     cout << "sizeof(whole_message) = " << sizeof(whole_message) << "\n";
-     cout << "data_buffer.size() = " << data_buffer.size() << "\n";
+ 
+     std::cout << "Size of (custom message) = " << sizeof(custom_msg) << "\n";
+
+     file_reader(data_buffer,file,atoi(argv[3])); 
+
+     cout << "Data buffer size: " << data_buffer.size() << "\n";
    
   
-     cout << "Starting data deliverer... goal rate: " << argv[1] << " Hz" <<endl;
+     cout << "Starting data deliverer... goal rate: " << argv[2] << " Hz" <<endl;
 
 
      double TARGET_MPS = atof(argv[1]);  // Not precise, aim for higher than required
@@ -146,8 +152,8 @@ int main(int argc, char** argv) {
      thread t1(sender_loop, 0, OUT_PORT, TARGET_MPS/5, std::ref(data_buffer));
      thread t2(sender_loop, 1, OUT_PORT, TARGET_MPS/5, std::ref(data_buffer));
      thread t3(sender_loop, 2, OUT_PORT, TARGET_MPS/5, std::ref(data_buffer));
-     thread t4(sender_loop, 4, OUT_PORT, TARGET_MPS/5, std::ref(data_buffer));
-     thread t5(sender_loop, 5, OUT_PORT, TARGET_MPS/5, std::ref(data_buffer));
+     thread t4(sender_loop, 3, OUT_PORT, TARGET_MPS/5, std::ref(data_buffer));
+     thread t5(sender_loop, 4, OUT_PORT, TARGET_MPS/5, std::ref(data_buffer));
 
      cout<<"Running... "<<endl;
 

@@ -25,7 +25,6 @@ struct routing_header{
 
 struct wvf_message{
 
-
  uint8_t version;
  uint8_t ID;
 
@@ -53,10 +52,32 @@ struct wvf_message{
 
 };
 
+struct wvf_custom_message{ // Add fields if needed: for now this is for testing parallel traces. Tell Anna about this. 
+
+ uint8_t version;
+ 
+ uint16_t TrLen;
+
+ uint64_t Timestamp;
+ 
+ int16_t Tr[N_CHANNELS][(TR_LEN + OVERLAP) * MINIBATCH_SIZE];
+
+};
+
+
+
 struct whole_message { 
 
    routing_header header; 
    wvf_message message; 
+
+};
+
+
+struct whole_custom_message{
+
+  routing_header header; 
+  wvf_custom_message custom_message;
 
 };
 
