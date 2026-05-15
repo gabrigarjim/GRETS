@@ -97,6 +97,10 @@ void sender_loop(int core_id, int port, double TARGET, vector<whole_message> &da
 
       int sent = sendmmsg(sockfd, msgs, BATCH_SIZE, 0);
 
+      if (sent != BATCH_SIZE) {
+       cerr << "Partial send: " << sent << "/" << BATCH_SIZE << endl;
+      }
+
       counter += BATCH_SIZE;
 
       std::this_thread::sleep_for(delay);
@@ -114,12 +118,11 @@ void sender_loop(int core_id, int port, double TARGET, vector<whole_message> &da
 int main(int argc, char** argv) {
 
 
-    if(argc != 4){
+    if(argc != 3){
 
-     cout<<"Usage: ./grets file rate mode "<<endl;
+     cout<<"Usage: ./grets file rate "<<endl;
 
      cout<<"rate: messages/s"<<endl;
-     cout<<"mode: 1 - single message 2 - overlapped traces 3 - overlapped and batched (modifies original structure)"<<endl;
      
      return 0 ;
 
@@ -132,37 +135,29 @@ int main(int argc, char** argv) {
       throw std::runtime_error("Failed to open file");
     
      vector<whole_message> data_buffer; 
-
-     wvf_custom_message custom_msg{}; 
-
- 
-     std::cout << "Size of (custom message) = " << sizeof(custom_msg) << "\n";
-
-     file_reader(data_buffer,file,atoi(argv[3])); 
+     
+     file_reader(data_buffer,file); 
 
      cout << "Data buffer size: " << data_buffer.size() << "\n";
-   
-  
      cout << "Starting data deliverer... goal rate: " << argv[2] << " Hz" <<endl;
 
 
-     double TARGET_MPS = atof(argv[1]);  // Not precise, aim for higher than required
+     double TARGET_MPS = atof(argv[2]);  // Not precise, aim for higher than required
 
      // Five cores seems to be enough for now... I can get up to 1.4 M/s (~ 21 GB/s)
-     thread t1(sender_loop, 0, OUT_PORT, TARGET_MPS/5, std::ref(data_buffer));
-     thread t2(sender_loop, 1, OUT_PORT, TARGET_MPS/5, std::ref(data_buffer));
-     thread t3(sender_loop, 2, OUT_PORT, TARGET_MPS/5, std::ref(data_buffer));
-     thread t4(sender_loop, 3, OUT_PORT, TARGET_MPS/5, std::ref(data_buffer));
-     thread t5(sender_loop, 4, OUT_PORT, TARGET_MPS/5, std::ref(data_buffer));
 
-     cout<<"Running... "<<endl;
-
-     t1.join();
-     t2.join();
-     t3.join();
-     t4.join();
-     t5.join();
      
- 
+      thread t1(sender_loop, 0, OUT_PORT, TARGET_MPS/5, std::ref(data_buffer));
+      thread t2(sender_loop, 1, OUT_PORT, TARGET_MPS/5, std::ref(data_buffer));
+      thread t3(sender_loop, 2, OUT_PORT, TARGET_MPS/5, std::ref(data_buffer));
+      thread t4(sender_loop, 3, OUT_PORT, TARGET_MPS/5, std::ref(data_buffer));
+      thread t5(sender_loop, 4, OUT_PORT, TARGET_MPS/5, std::ref(data_buffer));
+
+      t1.join();
+      t2.join();
+      t3.join();
+      t4.join();
+      t5.join();
+    
      return 0;
 }

@@ -9,9 +9,6 @@
 // Trace parameters
 #define N_CHANNELS 40
 #define TR_LEN 188
-#define OVERLAP 10 
-#define MINIBATCH_SIZE 64
-
 
 // Trapezoidal filter parameters
 #define K 12
